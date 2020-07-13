@@ -1,0 +1,49 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;\red194\green126\blue101;
+\red202\green202\blue202;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\csgray\c100000;\cssrgb\c80784\c56863\c47059;
+\cssrgb\c83137\c83137\c83137;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww15120\viewh10960\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf2 \cb3 sql_dataset_generator module contains 4 functions\
+\
+kword_dic = Columns read from keyword table\
+In the following views, the first entry is always _count, aggregating rest of list\
+pop_views all views on popular queries \
+qu_views (count, news, offical, medical)\
+prod_views all views on prodcuts\
+\
+intersects Schnittmenge symptoms and flu tables\
+\
+1. read_ktable()\
+Reads xlsx file \'91keywords\'92 and fills the global kword_dic dictionary with following entries.\
+\pard\pardeftab720\sl360\partightenfactor0
+\cf2 \expnd0\expndtw0\kerning0
+'qu_medical'\
+'qu_offical'\
+'qu_news'\
+prod_'\
+'pop_'\
+'symptoms_'\
+\
+Each entry is a list of all strings in the respective column of keywords.xlsx\
+\
+2. dataset_gen(tables: bool)\
+Generator yielding all nessecary sql statements to create views and tables\
+\
+If called with \'91False\'92 only views are created freshly (Tables take long and usually stay the same)\
+\
+3. drop views(tables: bool). \
+Generates all nesssescary drop statments. Views and table need to be dropped before generated again.\
+If called with False, only drop view statements are returned\
+\
+join_timestats_flu(view:str)\
+\
+joins given view with the timestats view. Only works with pop_views or qu_views\
+\
+\
+Module test_gen generated two txt files generated_creates and generated_drops with sql drop and create statements as text, for copy pasting into sql developer for testing and debugging\
+\
+}
