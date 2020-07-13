@@ -195,10 +195,11 @@ def dataset_gen(tables=True):
             "select rank, count(*) from anfrage_symptoms group by rank;")
 
 #yield all drop view or table statments
-def drop_views():
-
-    yield "drop table anfrage_flu;"
-    yield 'drop table anfrage_symptoms;\n\n'
+def drop_views(tables=True):
+     
+    if tables:
+        yield "drop table anfrage_flu;"
+        yield 'drop table anfrage_symptoms;\n\n'
 
     for view in pop_views:
         yield f"drop view {view}; "
