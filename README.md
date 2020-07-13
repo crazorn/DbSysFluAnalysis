@@ -7,3 +7,5 @@ Zu installieren einfach in der CMD 'python -m pip install cx_Oracle --upgrade' a
 Außerdem benutzen wir den Oracle instant client. Dieser kann von https://www.oracle.com/de/database/technologies/instant-client/downloads.html herunter geladen werden. - GitHub erlaubt keine so großen Dateien :(
 Den bitte entpacken und im repo als Ordner "instantclient" speichern.
 
+Excel lib:
+pip install xlrd
