@@ -1,0 +1,35 @@
+drop table anfrage_flu;
+drop table anfrage_symptoms
+
+;
+drop view pop_count ;
+drop view pop_pandemic ;
+drop view pop_symptom ;
+drop view pop_vaccine ;
+drop view pop_bird ;
+drop view pop_avian ;
+drop view pop_treatment ;
+drop view pop_cure ;
+drop view pop_spanish ;
+drop view pop_wiki ;
+drop view pop_case ;
+drop view pop_h5n1 ;
+drop view pop_bird_combined ;
+drop view qu_count ;
+drop view qu_news ;
+drop view qu_offical ;
+drop view qu_medical ;
+drop view intersect_users ;
+drop view symptoms_in_flu ;
+drop view flu_in_symptoms ;
+drop view prod_count ;
+drop view prod_vitamin ;
+drop view prod_toiletpaper ;
+drop view prod_desinfectant ;
+drop view prod_alcohol ;
+drop view prod_respiratorymask ;
+drop view prod_flumask ;
+drop view timestats_flu;
+drop view timestats_symptoms;
+drop view rank_flu;
+drop view rank_symptoms;

@@ -3,11 +3,11 @@ import re
 
 gen_wordsh=''
 for part in gen.dataset_gen():
-    gen_wordsh += part+'\n'
+    gen_wordsh += part+';\n'
 
 gen_drops=''
 for part in gen.drop_views():
-    gen_drops += part+'\n'
+    gen_drops += part+';\n'
 
 
 with open('generated_creates.txt', 'w') as g:
