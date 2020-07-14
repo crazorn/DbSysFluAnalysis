@@ -4,3 +4,10 @@ __pycache__
 .vscode
 
 instantclient
+
+.instantclient
+
+generated_creates.txt
+
+generated_drops
+
