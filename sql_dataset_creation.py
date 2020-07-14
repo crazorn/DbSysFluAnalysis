@@ -52,7 +52,7 @@ def dataset_gen(tables=True):
     if tables:
         yield   ("CREATE TABLE Anfrage_flu "
                 "(QID NUMBER(*, 0) NOT NULL, URL VARCHAR2(100 BYTE), QUERY VARCHAR2(1000 BYTE), "
-                "TIME TIMESTAMP(6), RANK NUMBER(*, 0), anonid NUMBER(*, 0) NOT NULL,PRIMARY KEY(QID)); ")
+                "TIME TIMESTAMP(6), RANK NUMBER(*, 0), anonid NUMBER(*, 0) NOT NULL,PRIMARY KEY(QID)) ")
 
         yield   ("INSERT INTO Anfrage_flu( "
                 "time,query, qid,rank,url,anonid) "
@@ -63,7 +63,7 @@ def dataset_gen(tables=True):
                 "query like '%flu!%' or "
                 "query like '%flu?%' or "
                 "query like '%flu' or "
-                "query like 'flu';")
+                "query like 'flu'")
         
         yield   ("CREATE TABLE Anfrage_symptoms( "
                 "QID NUMBER(*, 0) NOT NULL "
@@ -72,7 +72,7 @@ def dataset_gen(tables=True):
                 ", TIME TIMESTAMP(6) "
                 ", RANK NUMBER(*, 0) "
                 ", anonid NUMBER(*,0) NOT NULL, "
-                "PRIMARY KEY(QID));")
+                "PRIMARY KEY(QID))")
         
         yield   ("INSERT INTO Anfrage_symptoms( "
                 "time,query,qid,rank,url,anonid) "
@@ -90,41 +90,43 @@ def dataset_gen(tables=True):
                 "query like '%fatigue%' or "
                 "query like '%vomit%' or "
                 "query like '%diarrhea%' or "
-                "query like '%shortness of breath%'; \n\n")
+                "query like '%shortness of breath%'")
 
     yield   ("Create view timestats_flu(qid, MONTH, DAY, HOUR) "
             "as select qid, "
             "EXTRACT(MONTH FROM anfrage_flu.time),"
             "EXTRACT(DAY FROM anfrage_flu.time),"
             "EXTRACT(HOUR FROM anfrage_flu.time) "
-            "from Anfrage_flu;")
+            "from Anfrage_flu")
     
     yield   ("Create view timestats_symptoms(qid, MONTH, DAY, HOUR) "
             "as select qid, "
             "EXTRACT(MONTH FROM anfrage_symptoms.time),"
             "EXTRACT(DAY FROM anfrage_symptoms.time),"
             "EXTRACT(HOUR FROM anfrage_symptoms.time) "
-            "from Anfrage_symptoms;")
+            "from Anfrage_symptoms")
     
     #dynamic view creation for popular keywords
     pop_views.append('pop_count')
     for kword in kword_dic['pop_']:
-        yield   (f"create view pop_{kword.replace(' ', '')} as "
-                f"select * from anfrage_flu where query like '%{kword}%';")
-        pop_views.append(f"pop_{kword.replace(' ','')}")
+        nows_kword = kword.replace(' ', '')
+        yield   (f"create view pop_{nows_kword} as "
+                f"select * from anfrage_flu where query like '%{kword}%'")
+        pop_views.append(f"pop_{nows_kword}")
     
     #Special case view combining bird flu relevant queries
     yield   ("create view pop_bird_combined as "
             "select * from pop_bird union "
             "select * from pop_avian union "
-            "select * from pop_h5n1;")
+            "select * from pop_h5n1")
     
     pop_views.append('pop_bird_combined')
 
     pop_count= 'create view pop_count(keyword, searches) as '
     for  kword in kword_dic['pop_']:
-        pop_count += f"select '{kword.replace(' ','')}', count(distinct time) from pop_{kword.replace(' ','')} union "
-    pop_count += "select 'bird_combined',  count(distinct time) from pop_bird_combined;"
+        nows_kword = kword.replace(' ', '')
+        pop_count += f"select '{nows_kword}', count(distinct time) from pop_{nows_kword} union "
+    pop_count += "select 'bird_combined',  count(distinct time) from pop_bird_combined"
     yield pop_count
 
     #dynamic view for news, offical, medical
@@ -133,7 +135,7 @@ def dataset_gen(tables=True):
         qu_news+= f"select * from anfrage_flu where url like '%{kword}%' union "
 
     qu_news = qu_news[:-6]
-    qu_news+=';'
+    qu_news+=''
     yield qu_news
 
     qu_offical = 'create view qu_offical as '
@@ -141,7 +143,7 @@ def dataset_gen(tables=True):
         qu_offical+= f"select * from anfrage_flu where url like '%{kword}%' union "
 
     qu_offical = qu_offical[:-6]
-    qu_offical+=';'
+    qu_offical+=''
     yield qu_offical
 
     qu_medical = 'create view qu_medical as '
@@ -149,76 +151,77 @@ def dataset_gen(tables=True):
         qu_medical+= f"select * from anfrage_flu where url like '%{kword}%' union "
 
     qu_medical = qu_medical[:-6]
-    qu_medical+=';'
+    qu_medical+=''
     yield qu_medical
 
     yield   ("create view qu_count(keyword, searches) as "
             "select 'news', count(distinct time) from qu_news union "
             "select 'offical', count(distinct time) from qu_offical union "
-            "select 'medical',  count(distinct time) from qu_medical;")
+            "select 'medical',  count(distinct time) from qu_medical")
 
     yield   ("create view flu_in_symptoms as "
             "select qid from anfrage_flu "
             "where exists( "
-            "select anonid from anfrage_symptoms where anfrage_symptoms.anonid = anfrage_flu.anonid);")
+            "select anonid from anfrage_symptoms where anfrage_symptoms.anonid = anfrage_flu.anonid)")
     
     yield ("create view symptoms_in_flu as "
             "select qid from anfrage_symptoms "
             "where exists( "
-            "select anonid from anfrage_flu where anfrage_symptoms.anonid = anfrage_flu.anonid);")
+            "select anonid from anfrage_flu where anfrage_symptoms.anonid = anfrage_flu.anonid)")
     
     yield   ("create view intersect_users as "
             "select distinct anonid from anfrage_flu " 
             "where exists( "
-            "select anonid from anfrage_symptoms where anfrage_symptoms.anonid = anfrage_flu.anonid);")
+            "select anonid from anfrage_symptoms where anfrage_symptoms.anonid = anfrage_flu.anonid)")
     
     prod_views.append('prod_count')
     for kword in kword_dic['prod_']:
-        yield (f"create view prod_{kword.replace(' ','')} as "
+        nows_kword = kword.replace(' ', '')
+        yield (f"create view prod_{nows_kword} as "
                 "select * from aoldata.querydata where "
                 f"query like '%{kword}%' and "
-                "exists(select anonid from intersect_users where intersect_users.anonid = aoldata.querydata.anonid);")
-        prod_views.append(f"prod_{kword.replace(' ','')}")
+                "exists(select anonid from intersect_users where intersect_users.anonid = aoldata.querydata.anonid)")
+        prod_views.append(f"prod_{nows_kword}")
 
     prod_count = 'create view prod_count(product, searches) as '
     for kword in kword_dic['prod_']:
-        prod_count+= f"select '{kword.replace(' ','')}', count(distinct querytime) from prod_{kword.replace(' ','')} union "
+        nows_kword = kword.replace(' ', '')
+        prod_count+= f"select '{nows_kword}', count(distinct querytime) from prod_{nows_kword} union "
 
     prod_count = prod_count[:-6]
-    prod_count+=';'
     yield prod_count
 
     yield ("create view rank_flu(rank, count) as "
-            "select rank, count(*) from anfrage_flu group by rank;")
+            "select rank, count(*) from anfrage_flu group by rank")
     
     yield   ("create view rank_symptoms(rank, count) as "
-            "select rank, count(*) from anfrage_symptoms group by rank;")
+            "select rank, count(*) from anfrage_symptoms group by rank")
 
 #yield all drop view or table statments
 def drop_views(tables=True):
      
     if tables:
-        yield "drop table anfrage_flu;"
-        yield 'drop table anfrage_symptoms;\n\n'
+        yield "drop table anfrage_flu"
+        yield 'drop table anfrage_symptoms'
 
     for view in pop_views:
-        yield f"drop view {view}; "
+        yield f"drop view {view} "
     for view in qu_views:
-        yield f"drop view {view}; "
+        yield f"drop view {view} "
     for view in intersects:
-        yield f"drop view {view}; "
+        yield f"drop view {view} "
     for view in prod_views:
-        yield f"drop view {view}; "
+        yield f"drop view {view} "
     
-    yield "drop view timestats_flu;"
-    yield "drop view timestats_symptoms;"
-    yield 'drop view rank_flu;'
-    yield 'drop view rank_symptoms;'
+    yield "drop view timestats_flu"
+    yield "drop view timestats_symptoms"
+    yield 'drop view rank_flu'
+    yield 'drop view rank_symptoms'
     
 
 #generic join for parsed timestat tables view must be one of the created views kept in toplevel lists. 
 #Valid inputs from lists pop_views and qu_views
 def join_timestats_flu(view):
     return (f"select timestats_flu.qid, timestats_flu.month, timestats_flu.day, timestats_flu.hour "
-            f"from timestats_flu inner join {view} on timestats_flu.qid = {view}.qid;")
+            f"from timestats_flu inner join {view} on timestats_flu.qid = {view}.qid")
     
