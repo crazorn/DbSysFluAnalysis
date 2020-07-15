@@ -10,7 +10,7 @@ kword_dic = {
             'symptoms_':list()}
 pop_views=list()
 qu_views=('qu_count', 'qu_news', 'qu_offical', 'qu_medical')  #const
-intersects = ('intersect_users', 'symptoms_in_flu', 'flu_in_symptoms') #const
+intersects = ('intersect_users', 'symptoms_in_flu', 'flu_in_symptoms', 'flu_and_symptoms') #const
 prod_views=list()
 
 #creates Dictionary from keyword excel
@@ -174,13 +174,18 @@ def dataset_gen(tables=True):
             "where exists( "
             "select anonid from anfrage_symptoms where anfrage_symptoms.anonid = anfrage_flu.anonid)")
     
+    yield ("create view flu_and_symptoms as "
+            "select distinct anonid from( " 
+            "select anonid from anfrage_flu union "
+            "select anonid from anfrage_symptoms) ")
+    
     prod_views.append('prod_count')
     for kword in kword_dic['prod_']:
         nows_kword = kword.replace(' ', '')
         yield (f"create view prod_{nows_kword} as "
                 "select * from aoldata.querydata where "
                 f"query like '%{kword}%' and "
-                "exists(select anonid from intersect_users where intersect_users.anonid = aoldata.querydata.anonid)")
+                "exists(select anonid from flu_and_symptoms where flu_and_symptoms.anonid = aoldata.querydata.anonid)")
         prod_views.append(f"prod_{nows_kword}")
 
     prod_count = 'create view prod_count(product, searches) as '
