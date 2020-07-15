@@ -1,7 +1,5 @@
 drop table anfrage_flu;
-drop table anfrage_symptoms
-
-;
+drop table anfrage_symptoms;
 drop view pop_count ;
 drop view pop_pandemic ;
 drop view pop_symptom ;
@@ -22,10 +20,11 @@ drop view qu_medical ;
 drop view intersect_users ;
 drop view symptoms_in_flu ;
 drop view flu_in_symptoms ;
+drop view flu_and_symptoms ;
 drop view prod_count ;
 drop view prod_vitamin ;
 drop view prod_toiletpaper ;
-drop view prod_desinfectant ;
+drop view prod_disinfectant ;
 drop view prod_alcohol ;
 drop view prod_respiratorymask ;
 drop view prod_flumask ;
