@@ -1,5 +1,6 @@
 import numpy as np
 import seaborn as sns
+import pandas as pd
 import matplotlib.pyplot as plt
 
 import cx_Oracle
@@ -100,6 +101,39 @@ def VisualizeTotalSearchesProd():
         sns.despine(left=True, bottom=True)
         plt.show()
 
+def VisualizeFluSearches():
+    with connection.cursor() as dbcursor:
+        dbcursor.execute(
+        """
+            SELECT count(qid), trunc(r.time,'DD')
+            FROM anfrage_flu r
+            GROUP BY trunc(r.time,'DD')
+            order by trunc(r.time,'DD')
+        """)
+
+        flusearch = dbcursor.fetchall()
+        flu_searches, flu_date = zip(*flusearch)
+        
+        seccursor = connection.cursor()
+        seccursor.execute(
+        """
+            SELECT count(qid), trunc(r.time,'DD')
+            FROM anfrage_symptoms r
+            GROUP BY trunc(r.time,'DD')
+            order by trunc(r.time,'DD')
+        """)
+        sympsearch = seccursor.fetchall()
+        symp_searches, symp_date = zip(*sympsearch)
+        amount=np.column_stack((flu_searches, symp_searches))
+        data = pd.DataFrame(amount, symp_date, columns=["Suchen mit dem Wort \"flu\"","Suchen nach Grippesymptomen"])
+        fig, ax = plt.subplots(1, 1)
+        sns.set(style="whitegrid")
+        sns.lineplot(data=data, palette="deep", linewidth=2, dashes=False)
+        ax.set(ylabel="Suchen", xlabel="Datum", title="Korrelation zwischen suchen nach Grippesymptomen und dem Wort Grippe")
+
+        plt.show()
+
+
 
 try:
     cx_Oracle.init_oracle_client(lib_dir=r"./instantclient")
@@ -114,6 +148,8 @@ password = ""
 
 connection = cx_Oracle.connect(username, password, "localhost/rispdb1")
 
+VisualizeFluSearches()
 #VisualizeTotalSearchesProd()
 #VisualizeTotalSearchesPop()
 #VisualizeClickRank()
+connection.close()
