@@ -52,6 +52,31 @@ def VisualizeClickRank():
         #plt.setp(f.axes, yticks=[0, 500, 1000, 1500, 2000, 2500])
         plt.tight_layout(h_pad=2)
         plt.show()
+    
+def VisualizeTotalSearchesPop():
+    with connection.cursor() as dbcursor:
+        dbcursor.execute(
+            """
+                SELECT *
+                FROM POP_COUNT
+                ORDER BY searches DESC
+            """)
+        prodCount = dbcursor.fetchall()
+        sns.set(style="whitegrid")
+
+        f, ax = plt.subplots(figsize=(6, 15))
+
+        word, count = zip(*prodCount)
+        y = np.array(word)
+        sns.set_color_codes("pastel")
+        sns.barplot(x=count, y=y, label="Total", color="b")
+        # Add a legend and informative axis label
+        ax.legend(ncol=1, loc="lower right", frameon=True)
+        ax.set(ylabel="Keyword", xlabel="Suchen nach Schlüsselwort.")
+        sns.despine(left=True, bottom=True)
+        plt.show()
+
+
 
     
 try:
@@ -67,4 +92,5 @@ password = ""
 
 connection = cx_Oracle.connect(username, password, "localhost/rispdb1")
 
-VisualizeClickRank()
+#VisualizeTotalSearchesPop()
+#VisualizeClickRank()
