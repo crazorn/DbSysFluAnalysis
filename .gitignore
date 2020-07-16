@@ -8,3 +8,11 @@ instantclient
 generated_creates.txt
 
 generated_drops.txt
+
+._generated_creates.txt
+
+._generated_drops.txt
+
+._keywords.xlsx
+
+.~lock.keywords.xlsx
