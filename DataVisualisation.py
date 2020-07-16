@@ -61,6 +61,30 @@ def VisualizeTotalSearchesPop():
                 FROM POP_COUNT
                 ORDER BY searches DESC
             """)
+        popCount = dbcursor.fetchall()
+        sns.set(style="whitegrid")
+
+        f, ax = plt.subplots(figsize=(6, 15))
+
+        word, count = zip(*popCount)
+        y = np.array(word)
+        sns.set_color_codes("pastel")
+        sns.barplot(x=count, y=y, label="Total", color="b")
+        # Add a legend and informative axis label
+        ax.legend(ncol=1, loc="lower right", frameon=True)
+        ax.set(ylabel="Keyword", xlabel="Suchen nach Schlüsselwort.")
+        sns.despine(left=True, bottom=True)
+        plt.show()
+    
+def VisualizeTotalSearchesProd():
+    
+    with connection.cursor() as dbcursor:
+        dbcursor.execute(
+            """
+                SELECT *
+                FROM PROD_COUNT
+                ORDER BY searches DESC
+            """)
         prodCount = dbcursor.fetchall()
         sns.set(style="whitegrid")
 
@@ -72,13 +96,11 @@ def VisualizeTotalSearchesPop():
         sns.barplot(x=count, y=y, label="Total", color="b")
         # Add a legend and informative axis label
         ax.legend(ncol=1, loc="lower right", frameon=True)
-        ax.set(ylabel="Keyword", xlabel="Suchen nach Schlüsselwort.")
+        ax.set(ylabel="Keyword", xlabel="Suchen nach Produkten.")
         sns.despine(left=True, bottom=True)
         plt.show()
 
 
-
-    
 try:
     cx_Oracle.init_oracle_client(lib_dir=r"./instantclient")
 except Exception as err:
@@ -92,5 +114,6 @@ password = ""
 
 connection = cx_Oracle.connect(username, password, "localhost/rispdb1")
 
+#VisualizeTotalSearchesProd()
 #VisualizeTotalSearchesPop()
 #VisualizeClickRank()
