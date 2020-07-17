@@ -186,7 +186,9 @@ def dataset_gen(tables=True):
                 "select * from aoldata.querydata where "
                 f"query like '%{kword}%' and "
                 "exists(select anonid from flu_and_symptoms where flu_and_symptoms.anonid = aoldata.querydata.anonid)")
-        prod_views.append(f"prod_{nows_kword}")
+        viewname = f"prod_{nows_kword}"
+        if viewname not in prod_views:
+            prod_views.append(viewname)
 
     prod_count = 'create view prod_count(product, searches) as '
     for kword in kword_dic['prod_']:
@@ -204,7 +206,8 @@ def dataset_gen(tables=True):
 
 #yield all drop view or table statments
 def drop_views(tables=True):
-     
+    kword_dic = read_ktable()
+
     if tables:
         yield "drop table anfrage_flu"
         yield 'drop table anfrage_symptoms'
@@ -215,8 +218,15 @@ def drop_views(tables=True):
         yield f"drop view {view} "
     for view in intersects:
         yield f"drop view {view} "
+    
+    #HACK there are no views to drop if dataset_gen has not run....
+    prod_views.append('prod_count')
+    for kword in kword_dic['prod_']:
+        nows_kword = kword.replace(' ', '')
+        prod_views.append(f"prod_{nows_kword}")
     for view in prod_views:
         yield f"drop view {view} "
+
     
     yield "drop view timestats_flu"
     yield "drop view timestats_symptoms"
