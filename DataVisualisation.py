@@ -128,12 +128,33 @@ def VisualizeFluSearches():
         data = pd.DataFrame(amount, symp_date, columns=["Suchen mit dem Wort \"flu\"","Suchen nach Grippesymptomen"])
         fig, ax = plt.subplots(1, 1)
         sns.set(style="whitegrid")
-        sns.lineplot(data=data, palette="deep", linewidth=2, dashes=False)
+        sns.lineplot(data=data, palette="deep", linewidth=2, dashes=False, ax=ax)
         ax.set(ylabel="Suchen", xlabel="Datum", title="Korrelation zwischen suchen nach Grippesymptomen und dem Wort Grippe")
 
         plt.show()
 
+def VisualizeQu():
+    with connection.cursor() as dbcursor:
+        dbcursor.execute(
+            """
+                SELECT *
+                FROM QU_COUNT
+                ORDER BY searches DESC
+            """)
+        popCount = dbcursor.fetchall()
+        sns.set(style="whitegrid")
 
+        f, ax = plt.subplots(figsize=(6, 15))
+
+        word, count = zip(*popCount)
+        y = np.array(word)
+        sns.set_color_codes("pastel")
+        sns.barplot(x=count, y=y, label="Total", color="b")
+        # Add a legend and informative axis label
+        ax.legend(ncol=1, loc="lower right", frameon=True)
+        ax.set(ylabel="Art der Seite", xlabel="Suchen")
+        sns.despine(left=True, bottom=True)
+        plt.show()
 
 try:
     cx_Oracle.init_oracle_client(lib_dir=r"./instantclient")
@@ -148,8 +169,10 @@ password = ""
 
 connection = cx_Oracle.connect(username, password, "localhost/rispdb1")
 
-VisualizeFluSearches()
+
+#VisualizeFluSearches()
 #VisualizeTotalSearchesProd()
 #VisualizeTotalSearchesPop()
 #VisualizeClickRank()
+VisualizeQu()
 connection.close()
