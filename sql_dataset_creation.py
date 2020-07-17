@@ -109,7 +109,8 @@ def dataset_gen(tables=True):
     #dynamic view creation for popular keywords
     pop_views.append('pop_count')
     for kword in kword_dic['pop_']:
-        nows_kword = kword.replace(' ', '')
+        nows_kword = kword
+        nows_kword.replace(' ', '')
         yield   (f"create view pop_{nows_kword} as "
                 f"select * from anfrage_flu where query like '%{kword}%'")
         pop_views.append(f"pop_{nows_kword}")
@@ -124,7 +125,8 @@ def dataset_gen(tables=True):
 
     pop_count= 'create view pop_count(keyword, searches) as '
     for  kword in kword_dic['pop_']:
-        nows_kword = kword.replace(' ', '')
+        nows_kword = kword
+        nows_kword.replace(' ', '')
         pop_count += f"select '{nows_kword}', count(distinct time) from pop_{nows_kword} union "
     pop_count += "select 'bird_combined',  count(distinct time) from pop_bird_combined"
     yield pop_count
@@ -181,7 +183,8 @@ def dataset_gen(tables=True):
     
     prod_views.append('prod_count')
     for kword in kword_dic['prod_']:
-        nows_kword = kword.replace(' ', '')
+        nows_kword = kword
+        nows_kword.replace(' ', '')
         yield (f"create view prod_{nows_kword} as "
                 "select * from aoldata.querydata where "
                 f"query like '%{kword}%' and "
@@ -192,7 +195,8 @@ def dataset_gen(tables=True):
 
     prod_count = 'create view prod_count(product, searches) as '
     for kword in kword_dic['prod_']:
-        nows_kword = kword.replace(' ', '')
+        nows_kword = kword
+        nows_kword.replace(' ', '')
         prod_count+= f"select '{nows_kword}', count(distinct querytime) from prod_{nows_kword} union "
 
     prod_count = prod_count[:-6]
