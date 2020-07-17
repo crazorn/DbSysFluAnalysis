@@ -17,6 +17,10 @@ connection = cx_Oracle.connect(username, password, "localhost/rispdb1")
 
 cur = connection.cursor()
 
+#HACK generate list content to have views to drop
+for statment in dc.dataset_gen():
+    pass
+
 for statement in dc.drop_views():
     try:
         print(statement)

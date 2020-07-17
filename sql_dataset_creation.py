@@ -112,7 +112,10 @@ def dataset_gen(tables=True):
         nows_kword = kword.replace(' ', '')
         yield   (f"create view pop_{nows_kword} as "
                 f"select * from anfrage_flu where query like '%{kword}%'")
-        pop_views.append(f"pop_{nows_kword}")
+        #HACK remove doubles
+        viewname = f"pop_{nows_kword}"
+        if viewname not in pop_views:
+            pop_views.append(f"pop_{nows_kword}")
     
     #Special case view combining bird flu relevant queries
     yield   ("create view pop_bird_combined as "
@@ -187,6 +190,7 @@ def dataset_gen(tables=True):
                 f"query like '%{kword}%' and "
                 "exists(select anonid from flu_and_symptoms where flu_and_symptoms.anonid = aoldata.querydata.anonid)")
         viewname = f"prod_{nows_kword}"
+        #HACK remove doubles
         if viewname not in prod_views:
             prod_views.append(viewname)
 
@@ -218,12 +222,6 @@ def drop_views(tables=True):
         yield f"drop view {view} "
     for view in intersects:
         yield f"drop view {view} "
-    
-    #HACK there are no views to drop if dataset_gen has not run....
-    prod_views.append('prod_count')
-    for kword in kword_dic['prod_']:
-        nows_kword = kword.replace(' ', '')
-        prod_views.append(f"prod_{nows_kword}")
     for view in prod_views:
         yield f"drop view {view} "
 
