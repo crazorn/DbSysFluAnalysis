@@ -221,6 +221,29 @@ def VisualizeSerchesByWebsiteType():
         ax.set(ylabel="Suchen", xlabel="Datum", title="Geklickte Seiten nach Typ im Zeitverlauf")
 
         plt.show()
+    
+def VisualizeTotalSearchesSymptoms():
+    with connection.cursor() as dbcursor:
+        dbcursor.execute(
+            """
+                SELECT *
+                FROM Sym_Count
+                ORDER BY searches DESC
+            """)
+        popCount = dbcursor.fetchall()
+        sns.set(style="whitegrid")
+
+        f, ax = plt.subplots(figsize=(6, 15))
+
+        word, count = zip(*popCount)
+        y = np.array(word)
+        sns.set_color_codes("pastel")
+        sns.barplot(x=count, y=y, label="Total", color="b")
+        # Add a legend and informative axis label
+        ax.legend(ncol=1, loc="lower right", frameon=True)
+        ax.set(ylabel="Keyword", xlabel="Suchen nach Symptomen.")
+        sns.despine(left=True, bottom=True)
+        plt.show()
    
 
 try:
@@ -242,5 +265,6 @@ connection = cx_Oracle.connect(username, password, "localhost/rispdb1")
 #VisualizeTotalSearchesPop()
 #VisualizeClickRank()
 #VisualizeQu()
-VisualizeSerchesByWebsiteType()
+#VisualizeSerchesByWebsiteType()
+VisualizeTotalSearchesSymptoms()
 connection.close()
