@@ -12,6 +12,7 @@ pop_views=list()
 qu_views=('qu_count', 'qu_news', 'qu_offical', 'qu_medical')  #const
 intersects = ('intersect_users', 'symptoms_in_flu', 'flu_in_symptoms', 'flu_and_symptoms') #const
 prod_views=list()
+sym_views=list()
 
 #creates Dictionary from keyword excel
 def read_ktable():
@@ -116,6 +117,25 @@ def dataset_gen(tables=True):
         viewname = f"pop_{nows_kword}"
         if viewname not in pop_views:
             pop_views.append(f"pop_{nows_kword}")
+
+    #dynamic view creation for sympoms
+    pop_views.append('sym_count')
+    for kword in kword_dic['symptoms']:
+        nows_kword = kword.replace(' ', '')
+        yield   (f"create view sym_{nows_kword} as "
+                f"select * from anfrage_symptoms where query like '%{kword}%'")
+        #HACK remove doubles
+        viewname = f"sym_{nows_kword}"
+        if viewname not in sym_views:
+            sym_views.append(f"sym_{nows_kword}")
+
+    sym_count = 'create view sym_count(symptom, searches) as '
+    for kword in kword_dic['symptoms']:
+        nows_kword = kword.replace(' ', '')
+        sym_count+= f"select '{nows_kword}', count(distinct time) from sym_{nows_kword} union "
+
+    sym_count = sym_count[:-6]
+    yield sym_count
     
     #Special case view combining bird flu relevant queries
     yield   ("create view pop_bird_combined as "
@@ -224,6 +244,8 @@ def drop_views(tables=True):
         yield f"drop view {view} "
     for view in prod_views:
         yield f"drop view {view} "
+    for view in sym_views:
+        yield f"drop view {view} "    
 
     
     yield "drop view timestats_flu"
