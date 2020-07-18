@@ -2,10 +2,31 @@ import numpy as np
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+import datetime as dt
 
 import cx_Oracle
 import sys
 import sql_dataset_creation as dc
+
+def __insertMissingDates(countperDatetup, datestup):
+    """If a date has no click it doesent exist in the list. And since we cant have list with varying lenghts, we need to insert the missing dates
+    and add a zero as click count."""
+    countperDate = list(countperDatetup)
+    dates = list(datestup)
+    listlen = len(countperDate)
+    prevDate = dates[0]
+    index = 1
+    while(index < listlen):
+        dayAfterPrevDay = prevDate + dt.timedelta(days=1)
+        if dates[index] != dayAfterPrevDay:
+            dates.insert(index-1, dayAfterPrevDay)
+            countperDate.insert(index-1, 0)
+            listlen +=1
+            prevDate = dayAfterPrevDay
+        else:
+            prevDate = dates[index]
+        index+=1
+    return tuple(countperDate), tuple(dates)
 
 def VisualizeClickRank():
     """Visualizes the clicks base on the rang in a bar diagram"""
@@ -156,6 +177,52 @@ def VisualizeQu():
         sns.despine(left=True, bottom=True)
         plt.show()
 
+def VisualizeSerchesByWebsiteType():
+    with connection.cursor() as dbcursor:
+        dbcursor.execute(
+        """
+            SELECT count(qid), trunc(r.time,'DD')
+            FROM QU_MEDICAL r
+            GROUP BY trunc(r.time,'DD')
+            order by trunc(r.time,'DD')
+        """)
+        medsearches = dbcursor.fetchall()
+        med_count, med_date = zip(*medsearches)
+        med_count, med_date = __insertMissingDates(med_count,med_date)
+        
+        dbcursor.execute(
+        """
+            SELECT count(qid), trunc(r.time,'DD')
+            FROM QU_NEWS r
+            GROUP BY trunc(r.time,'DD')
+            order by trunc(r.time,'DD')
+        """)
+        newssearches = dbcursor.fetchall()
+        news_count, news_date = zip(*newssearches)
+        news_count, news_date = __insertMissingDates(news_count, news_date)
+
+        dbcursor.execute(
+        """
+            SELECT count(qid), trunc(r.time,'DD')
+            FROM QU_OFFICAL r
+            GROUP BY trunc(r.time,'DD')
+            order by trunc(r.time,'DD')
+        """)
+        offisearches = dbcursor.fetchall()
+        offi_count, offi_date = zip(*offisearches)
+        offi_count, offi_date = __insertMissingDates(offi_count, offi_date)
+
+        combined_counts = np.column_stack((med_count, news_count, offi_count))
+        data = pd.DataFrame(combined_counts, med_date, columns=["Medical", "News", "Offical"])
+
+        fig, ax = plt.subplots(1, 1)
+        sns.set(style="whitegrid")
+        sns.lineplot(data=data, palette="deep", linewidth=2, dashes=False, ax=ax)
+        ax.set(ylabel="Suchen", xlabel="Datum", title="Geklickte Seiten nach Typ im Zeitverlauf")
+
+        plt.show()
+   
+
 try:
     cx_Oracle.init_oracle_client(lib_dir=r"./instantclient")
 except Exception as err:
@@ -174,5 +241,6 @@ connection = cx_Oracle.connect(username, password, "localhost/rispdb1")
 #VisualizeTotalSearchesProd()
 #VisualizeTotalSearchesPop()
 #VisualizeClickRank()
-VisualizeQu()
+#VisualizeQu()
+VisualizeSerchesByWebsiteType()
 connection.close()
